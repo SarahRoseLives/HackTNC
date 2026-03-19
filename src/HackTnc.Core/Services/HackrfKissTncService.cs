@@ -34,7 +34,12 @@ public sealed class HackrfKissTncService : IAsyncDisposable
         _hackrfSession = new HackrfSession();
         _hackrfDevice = _hackrfSession.OpenDevice(options.SerialSuffix);
         _kissServer = new KissTcpServer(options.BindAddress, options.KissPort, _log);
-        _audioDecoder = new FmAudioDecoder(options.SampleRateHz, options.AudioSampleRate, options.RxAudioGain);
+        _audioDecoder = new FmAudioDecoder(
+            options.SampleRateHz,
+            options.AudioSampleRate,
+            options.RxAudioGain > 0
+                ? options.RxAudioGain
+                : options.SampleRateHz / (2.0 * Math.PI * options.FmDeviationHz));
         _iqEncoder = new FmIqEncoder(options.SampleRateHz, options.AudioSampleRate, options.FmDeviationHz, options.TxAudioGain);
         _modulator = new ax25.AFSK1200Modulator(options.AudioSampleRate)
         {

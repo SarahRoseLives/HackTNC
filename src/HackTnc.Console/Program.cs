@@ -20,6 +20,7 @@ await using var service = new HackrfKissTncService(options, Log);
 Log("Starting HackRF KISS/TCP TNC");
 Log($"Firmware: {service.FirmwareVersion}");
 Log($"Frequency: {options.FrequencyHz} Hz | KISS: {options.BindAddress}:{options.KissPort}");
+Log($"RX gain: {(options.RxAudioGain > 0 ? options.RxAudioGain : options.SampleRateHz / (2.0 * Math.PI * options.FmDeviationHz)):F1} (FM deviation: {options.FmDeviationHz} Hz)");
 
 await service.StartAsync(cts.Token);
 
@@ -173,7 +174,7 @@ static void PrintHelp()
     Console.WriteLine("  --fm-deviation <hz>        FM deviation. Default: 3000");
     Console.WriteLine("  --tx-delay <ms>            AX.25 TX delay flags. Default: 300");
     Console.WriteLine("  --tx-tail <ms>             AX.25 TX tail flags. Default: 50");
-    Console.WriteLine("  --rx-audio-gain <gain>     RX discriminator gain. Default: 1.0");
+    Console.WriteLine("  --rx-audio-gain <gain>     RX discriminator gain. 0=auto (default). ~106 for 2Msps/3kHz dev");
     Console.WriteLine("  --tx-audio-gain <gain>     TX audio gain. Default: 1.0");
     Console.WriteLine("  --serial <suffix>          HackRF serial suffix to open.");
     Console.WriteLine("  --hackrf-dll <path>        Explicit path to hackrf.dll.");

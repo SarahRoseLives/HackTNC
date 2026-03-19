@@ -26,7 +26,7 @@ public sealed class TncOptions
 
     public int FmDeviationHz { get; init; } = 3_000;
 
-    public double RxAudioGain { get; init; } = 1.0;
+    public double RxAudioGain { get; init; } = 0.0;
 
     public double TxAudioGain { get; init; } = 1.0;
 
