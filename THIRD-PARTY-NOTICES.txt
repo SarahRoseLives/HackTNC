@@ -1,0 +1,11 @@
+This project vendors and adapts portions of these upstream projects:
+
+1. AFSK1200Modem by dkxce
+   Repository: https://github.com/dkxce/AFSK1200Modem
+   Included here as source for AFSK1200 modulation/demodulation and AX.25 packet handling.
+
+2. libhackrf by Great Scott Gadgets
+   Repository: https://github.com/greatscottgadgets/hackrf
+   The HackRF native interop layer in this project is based on the public libhackrf API.
+
+Please review the upstream repositories for the original license texts and notices.
