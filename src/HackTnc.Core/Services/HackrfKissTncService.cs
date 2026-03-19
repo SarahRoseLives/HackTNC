@@ -53,6 +53,11 @@ public sealed class HackrfKissTncService : IAsyncDisposable
             new ReceivedPacketHandler(this));
     }
 
+    public event Action<string>? ClientConnected;
+    public event Action<string>? ClientDisconnected;
+    public event Action<string>? PacketReceived;
+    public event Action<string>? PacketTransmitted;
+
     public string FirmwareVersion => _hackrfDevice.FirmwareVersion;
 
     public async Task StartAsync(CancellationToken cancellationToken)
@@ -66,6 +71,8 @@ public sealed class HackrfKissTncService : IAsyncDisposable
         _lifetimeCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
 
         _kissServer.FrameReceived += EnqueueTransmitFrameAsync;
+        _kissServer.ClientConnected += ep => ClientConnected?.Invoke(ep);
+        _kissServer.ClientDisconnected += ep => ClientDisconnected?.Invoke(ep);
         await _kissServer.StartAsync(_lifetimeCts.Token).ConfigureAwait(false);
 
         _rxTask = Task.Run(() => ProcessReceiveAsync(_lifetimeCts.Token), _lifetimeCts.Token);
@@ -186,8 +193,10 @@ public sealed class HackrfKissTncService : IAsyncDisposable
         _modulator.GetSamples(packet, out float[] audioSamples);
         var iqBytes = _iqEncoder.Encode(audioSamples);
 
+        var formatted = ax25.Packet.Format(ToSBytes(frame));
         _hackrfDevice.ConfigureTransmit(_options);
-        _log($"TX {ax25.Packet.Format(ToSBytes(frame))}");
+        _log($"TX {formatted}");
+        PacketTransmitted?.Invoke(formatted);
         await _hackrfDevice.TransmitAsync(iqBytes, cancellationToken).ConfigureAwait(false);
         _log($"TX complete ({iqBytes.Length} IQ bytes).");
     }
@@ -206,7 +215,9 @@ public sealed class HackrfKissTncService : IAsyncDisposable
     private async Task ForwardReceivedPacketAsync(sbyte[] frame)
     {
         var bytes = ToBytes(frame);
-        _log($"RX {ax25.Packet.Format(frame)}");
+        var formatted = ax25.Packet.Format(frame);
+        _log($"RX {formatted}");
+        PacketReceived?.Invoke(formatted);
         await _kissServer.BroadcastFrameAsync(bytes, _lifetimeCts?.Token ?? CancellationToken.None).ConfigureAwait(false);
     }
 

@@ -21,6 +21,8 @@ public sealed class KissTcpServer : IAsyncDisposable
     }
 
     public event Func<byte[], Task>? FrameReceived;
+    public event Action<string>? ClientConnected;
+    public event Action<string>? ClientDisconnected;
 
     public Task StartAsync(CancellationToken cancellationToken)
     {
@@ -101,12 +103,15 @@ public sealed class KissTcpServer : IAsyncDisposable
                 closed =>
                 {
                     _sessions.TryRemove(sessionId, out _);
+                    ClientDisconnected?.Invoke(closed.RemoteEndPoint);
                     _ = closed.DisposeAsync();
                 },
                 _log);
 
             _sessions[sessionId] = session;
-            _log($"KISS client connected: {session.RemoteEndPoint}");
+            var endpoint = session.RemoteEndPoint;
+            _log($"KISS client connected: {endpoint}");
+            ClientConnected?.Invoke(endpoint);
             _ = Task.Run(() => session.RunAsync(cancellationToken), cancellationToken);
         }
     }
