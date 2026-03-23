@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HackTnc.Console", "src\Hack
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HackTnc.Gui", "src\HackTnc.Gui\HackTnc.Gui.csproj", "{FB343596-25E9-4BB4-AC45-1A0F5E084191}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HackTnc.Loopback", "loopback\HackTnc.Loopback.csproj", "{07F64AE0-1C2A-4D74-AE70-425C9BAACC89}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -32,6 +34,10 @@ Global
 		{FB343596-25E9-4BB4-AC45-1A0F5E084191}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FB343596-25E9-4BB4-AC45-1A0F5E084191}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FB343596-25E9-4BB4-AC45-1A0F5E084191}.Release|Any CPU.Build.0 = Release|Any CPU
+		{07F64AE0-1C2A-4D74-AE70-425C9BAACC89}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{07F64AE0-1C2A-4D74-AE70-425C9BAACC89}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{07F64AE0-1C2A-4D74-AE70-425C9BAACC89}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{07F64AE0-1C2A-4D74-AE70-425C9BAACC89}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{1D798B62-8FF6-440E-A9CB-5EB2EC2D8AD8} = {4552A7EA-4540-4BC7-8A13-2E054CFFA092}
