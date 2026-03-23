@@ -27,7 +27,21 @@ public sealed partial class MainForm : Form
         InitializeComponent();
         ApplyTheme();
         UpdateControls();
+        PopulateModes();
         LoadDeviceList();
+    }
+
+    // ── Mode selection ────────────────────────────────────────────────────────
+
+    private sealed record ModeItem(string DisplayName, TncMode Mode)
+    {
+        public override string ToString() => DisplayName;
+    }
+
+    private void PopulateModes()
+    {
+        cmbMode.Items.Add(new ModeItem("AFSK 1200", TncMode.Afsk1200));
+        cmbMode.SelectedIndex = 0;
     }
 
     // ── Device enumeration ────────────────────────────────────────────────────
@@ -186,6 +200,7 @@ public sealed partial class MainForm : Form
     {
         var freqMhz = (double)nudFrequency.Value;
         var serial = (cmbDevice.SelectedItem as DeviceItem)?.Serial;
+        var mode = (cmbMode.SelectedItem as ModeItem)?.Mode ?? TncMode.Afsk1200;
         return new TncOptions
         {
             FrequencyHz = (long)(freqMhz * 1_000_000),
@@ -196,6 +211,7 @@ public sealed partial class MainForm : Form
             TxVgaGainDb = (int)nudTxVgaGain.Value,
             AmpEnable = chkAmp.Checked,
             SerialSuffix = serial,
+            Mode = mode,
             SampleRateHz = 2_000_000,
             AudioSampleRate = 48_000,
             BasebandFilterBandwidthHz = 1_750_000,
@@ -255,6 +271,7 @@ public sealed partial class MainForm : Form
 
         cmbDevice.Enabled = !_running;
         btnRefreshDevices.Enabled = !_running;
+        cmbMode.Enabled = !_running;
         nudFrequency.Enabled = !_running;
         txtBindAddress.Enabled = !_running;
         nudKissPort.Enabled = !_running;

@@ -23,6 +23,10 @@ partial class MainForm
     private ComboBox cmbDevice = null!;
     private Button btnRefreshDevices = null!;
 
+    private GroupBox grpMode = null!;
+    private Label lblMode = null!;
+    private ComboBox cmbMode = null!;
+
     private GroupBox grpFreq = null!;
     private Label lblFreqMhz = null!;
     private NumericUpDown nudFrequency = null!;
@@ -187,8 +191,26 @@ partial class MainForm
         grpDevice.Controls.AddRange(new Control[] { lblDevice, cmbDevice, btnRefreshDevices });
         grpDevice.Height = 72;
 
+        // Mode group
+        grpMode = MakeGroup("Mode", 88);
+
+        lblMode = new Label { Text = "Operating mode", ForeColor = TextMuted, AutoSize = true, Location = new Point(8, 20) };
+
+        cmbMode = new ComboBox
+        {
+            Location = new Point(8, 36),
+            Width = 196,
+            DropDownStyle = ComboBoxStyle.DropDownList,
+            BackColor = Color.FromArgb(38, 38, 52),
+            ForeColor = TextPrimary,
+            FlatStyle = FlatStyle.Flat
+        };
+
+        grpMode.Controls.AddRange(new Control[] { lblMode, cmbMode });
+        grpMode.Height = 62;
+
         // Frequency group
-        grpFreq = MakeGroup("Frequency", 88);
+        grpFreq = MakeGroup("Frequency", 158);
 
         lblFreqMhz = new Label { Text = "MHz", ForeColor = TextMuted, AutoSize = true, Location = new Point(178, 24) };
 
@@ -210,7 +232,7 @@ partial class MainForm
         grpFreq.Height = 58;
 
         // KISS group
-        grpKiss = MakeGroup("KISS/TCP", 158);
+        grpKiss = MakeGroup("KISS/TCP", 228);
 
         lblBind = new Label { Text = "Bind address", ForeColor = TextMuted, AutoSize = true, Location = new Point(8, 20) };
         txtBindAddress = new TextBox
@@ -237,7 +259,7 @@ partial class MainForm
         grpKiss.Height = 112;
 
         // Gain group
-        grpGain = MakeGroup("RF Gain", 282);
+        grpGain = MakeGroup("RF Gain", 352);
 
         lblLna = new Label { Text = "LNA gain (dB)", ForeColor = TextMuted, AutoSize = true, Location = new Point(8, 20) };
         nudLnaGain = MakeGainSpinner(new Point(8, 36), 40, 24);
@@ -263,7 +285,7 @@ partial class MainForm
         btnStartStop = new Button
         {
             Text = "▶  Start TNC",
-            Location = new Point(12, 474),
+            Location = new Point(12, 544),
             Width = 216,
             Height = 40,
             FlatStyle = FlatStyle.Flat,
@@ -276,7 +298,7 @@ partial class MainForm
         btnStartStop.FlatAppearance.BorderSize = 1;
         btnStartStop.Click += BtnStartStop_Click;
 
-        pnlConfig.Controls.AddRange(new Control[] { grpDevice, grpFreq, grpKiss, grpGain, btnStartStop });
+        pnlConfig.Controls.AddRange(new Control[] { grpDevice, grpMode, grpFreq, grpKiss, grpGain, btnStartStop });
 
         // ── Content panel (right) ─────────────────────────────────────────────
         pnlContent = new Panel

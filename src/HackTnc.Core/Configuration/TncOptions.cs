@@ -36,5 +36,7 @@ public sealed class TncOptions
 
     public string? SerialSuffix { get; init; }
 
+    public TncMode Mode { get; init; } = TncMode.Afsk1200;
+
     public string? HackrfLibraryPath { get; init; }
 }
