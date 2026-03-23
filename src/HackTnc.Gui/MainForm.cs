@@ -1,5 +1,6 @@
 using System.Collections.Concurrent;
 using HackTnc.Core.Configuration;
+using HackTnc.Core.Interop;
 using HackTnc.Core.Services;
 
 namespace HackTnc.Gui;
@@ -26,6 +27,55 @@ public sealed partial class MainForm : Form
         InitializeComponent();
         ApplyTheme();
         UpdateControls();
+        LoadDeviceList();
+    }
+
+    // ── Device enumeration ────────────────────────────────────────────────────
+
+    private sealed record DeviceItem(string DisplayName, string? Serial)
+    {
+        public override string ToString() => DisplayName;
+    }
+
+    private void LoadDeviceList()
+    {
+        var previousSerial = (cmbDevice.SelectedItem as DeviceItem)?.Serial;
+        cmbDevice.Items.Clear();
+        cmbDevice.Items.Add(new DeviceItem("(Auto — first available)", null));
+
+        try
+        {
+            using var session = new HackrfSession();
+            var serials = session.ListDevices();
+            for (int i = 0; i < serials.Count; i++)
+            {
+                var serial = serials[i];
+                var label = string.IsNullOrWhiteSpace(serial)
+                    ? $"HackRF #{i}"
+                    : $"HackRF #{i}  ·  {serial}";
+                cmbDevice.Items.Add(new DeviceItem(label, serial));
+            }
+        }
+        catch (Exception ex)
+        {
+            AppendLog($"Device scan failed: {ex.Message}");
+        }
+
+        // Restore previous selection if the same serial is still present
+        int restored = -1;
+        if (previousSerial != null)
+        {
+            for (int i = 0; i < cmbDevice.Items.Count; i++)
+            {
+                if ((cmbDevice.Items[i] as DeviceItem)?.Serial == previousSerial)
+                {
+                    restored = i;
+                    break;
+                }
+            }
+        }
+
+        cmbDevice.SelectedIndex = restored >= 0 ? restored : 0;
     }
 
     // ── Start / Stop ──────────────────────────────────────────────────────────
@@ -135,6 +185,7 @@ public sealed partial class MainForm : Form
     private TncOptions BuildOptions()
     {
         var freqMhz = (double)nudFrequency.Value;
+        var serial = (cmbDevice.SelectedItem as DeviceItem)?.Serial;
         return new TncOptions
         {
             FrequencyHz = (long)(freqMhz * 1_000_000),
@@ -144,6 +195,7 @@ public sealed partial class MainForm : Form
             VgaGainDb = (int)nudVgaGain.Value,
             TxVgaGainDb = (int)nudTxVgaGain.Value,
             AmpEnable = chkAmp.Checked,
+            SerialSuffix = serial,
             SampleRateHz = 2_000_000,
             AudioSampleRate = 48_000,
             BasebandFilterBandwidthHz = 1_750_000,
@@ -201,6 +253,8 @@ public sealed partial class MainForm : Form
         btnStartStop.BackColor = _running ? Color.FromArgb(100, 35, 35) : Color.FromArgb(30, 80, 45);
         btnStartStop.ForeColor = _running ? AccentRed : AccentGreen;
 
+        cmbDevice.Enabled = !_running;
+        btnRefreshDevices.Enabled = !_running;
         nudFrequency.Enabled = !_running;
         txtBindAddress.Enabled = !_running;
         nudKissPort.Enabled = !_running;
@@ -225,6 +279,16 @@ public sealed partial class MainForm : Form
     {
         switch (control)
         {
+            case ComboBox cmb:
+                cmb.BackColor = Color.FromArgb(38, 38, 52);
+                cmb.ForeColor = TextPrimary;
+                cmb.FlatStyle = FlatStyle.Flat;
+                break;
+            case Button btn when btn != btnStartStop:
+                btn.BackColor = Color.FromArgb(38, 38, 52);
+                btn.ForeColor = TextMuted;
+                btn.FlatStyle = FlatStyle.Flat;
+                break;
             case Panel p:
                 p.BackColor = PanelDark;
                 break;

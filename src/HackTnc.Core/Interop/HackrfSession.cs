@@ -1,5 +1,7 @@
 namespace HackTnc.Core.Interop;
 
+using System.Runtime.InteropServices;
+
 public sealed class HackrfSession : IDisposable
 {
     private bool _disposed;
@@ -26,6 +28,37 @@ public sealed class HackrfSession : IDisposable
         }
 
         return new HackrfDevice(device);
+    }
+
+    public IReadOnlyList<string> ListDevices()
+    {
+        ThrowIfDisposed();
+
+        var listPtr = HackrfNative.hackrf_device_list();
+        if (listPtr == IntPtr.Zero)
+            return [];
+
+        try
+        {
+            var list = Marshal.PtrToStructure<HackrfNative.HackrfDeviceList>(listPtr);
+            if (list.devicecount <= 0 || list.serial_numbers == IntPtr.Zero)
+                return [];
+
+            var serials = new List<string>(list.devicecount);
+            for (int i = 0; i < list.devicecount; i++)
+            {
+                var serialPtr = Marshal.ReadIntPtr(list.serial_numbers + i * IntPtr.Size);
+                serials.Add(serialPtr != IntPtr.Zero
+                    ? Marshal.PtrToStringAnsi(serialPtr) ?? string.Empty
+                    : string.Empty);
+            }
+
+            return serials;
+        }
+        finally
+        {
+            HackrfNative.hackrf_device_list_free(listPtr);
+        }
     }
 
     public void Dispose()

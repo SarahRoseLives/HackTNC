@@ -18,6 +18,11 @@ partial class MainForm
     // ── Left config panel ─────────────────────────────────────────────────────
     private Panel pnlConfig = null!;
 
+    private GroupBox grpDevice = null!;
+    private Label lblDevice = null!;
+    private ComboBox cmbDevice = null!;
+    private Button btnRefreshDevices = null!;
+
     private GroupBox grpFreq = null!;
     private Label lblFreqMhz = null!;
     private NumericUpDown nudFrequency = null!;
@@ -148,8 +153,42 @@ partial class MainForm
             Padding = new Padding(12)
         };
 
+        // Device group
+        grpDevice = MakeGroup("HackRF Device", 8);
+
+        lblDevice = new Label { Text = "Select device", ForeColor = TextMuted, AutoSize = true, Location = new Point(8, 20) };
+
+        cmbDevice = new ComboBox
+        {
+            Location = new Point(8, 36),
+            Width = 168,
+            DropDownStyle = ComboBoxStyle.DropDownList,
+            BackColor = Color.FromArgb(38, 38, 52),
+            ForeColor = TextPrimary,
+            FlatStyle = FlatStyle.Flat
+        };
+
+        btnRefreshDevices = new Button
+        {
+            Text = "↻",
+            Location = new Point(180, 34),
+            Width = 28,
+            Height = 24,
+            FlatStyle = FlatStyle.Flat,
+            Font = new Font("Segoe UI", 10f),
+            BackColor = Color.FromArgb(38, 38, 52),
+            ForeColor = TextMuted,
+            Cursor = Cursors.Hand
+        };
+        btnRefreshDevices.FlatAppearance.BorderColor = BorderColor;
+        btnRefreshDevices.FlatAppearance.BorderSize = 1;
+        btnRefreshDevices.Click += (_, _) => LoadDeviceList();
+
+        grpDevice.Controls.AddRange(new Control[] { lblDevice, cmbDevice, btnRefreshDevices });
+        grpDevice.Height = 72;
+
         // Frequency group
-        grpFreq = MakeGroup("Frequency", 8);
+        grpFreq = MakeGroup("Frequency", 88);
 
         lblFreqMhz = new Label { Text = "MHz", ForeColor = TextMuted, AutoSize = true, Location = new Point(178, 24) };
 
@@ -171,7 +210,7 @@ partial class MainForm
         grpFreq.Height = 58;
 
         // KISS group
-        grpKiss = MakeGroup("KISS/TCP", 78);
+        grpKiss = MakeGroup("KISS/TCP", 158);
 
         lblBind = new Label { Text = "Bind address", ForeColor = TextMuted, AutoSize = true, Location = new Point(8, 20) };
         txtBindAddress = new TextBox
@@ -198,7 +237,7 @@ partial class MainForm
         grpKiss.Height = 112;
 
         // Gain group
-        grpGain = MakeGroup("RF Gain", 202);
+        grpGain = MakeGroup("RF Gain", 282);
 
         lblLna = new Label { Text = "LNA gain (dB)", ForeColor = TextMuted, AutoSize = true, Location = new Point(8, 20) };
         nudLnaGain = MakeGainSpinner(new Point(8, 36), 40, 24);
@@ -224,7 +263,7 @@ partial class MainForm
         btnStartStop = new Button
         {
             Text = "▶  Start TNC",
-            Location = new Point(12, 394),
+            Location = new Point(12, 474),
             Width = 216,
             Height = 40,
             FlatStyle = FlatStyle.Flat,
@@ -237,7 +276,7 @@ partial class MainForm
         btnStartStop.FlatAppearance.BorderSize = 1;
         btnStartStop.Click += BtnStartStop_Click;
 
-        pnlConfig.Controls.AddRange(new Control[] { grpFreq, grpKiss, grpGain, btnStartStop });
+        pnlConfig.Controls.AddRange(new Control[] { grpDevice, grpFreq, grpKiss, grpGain, btnStartStop });
 
         // ── Content panel (right) ─────────────────────────────────────────────
         pnlContent = new Panel

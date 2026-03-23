@@ -86,6 +86,17 @@ internal static class HackrfNative
     }
 
     [StructLayout(LayoutKind.Sequential)]
+    internal struct HackrfDeviceList
+    {
+        public IntPtr serial_numbers;    // char** — array of char* serial strings
+        public IntPtr usb_board_ids;     // enum hackrf_usb_board_id*
+        public IntPtr usb_device_index;  // int*
+        public int devicecount;
+        public IntPtr usb_devices;       // void**
+        public int usb_devicecount;
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
     internal struct HackrfTransfer
     {
         public IntPtr device;
@@ -161,4 +172,10 @@ internal static class HackrfNative
 
     [DllImport(LibraryName, CallingConvention = CallingConvention.Cdecl)]
     internal static extern int hackrf_version_string_read(IntPtr device, byte[] version, byte length);
+
+    [DllImport(LibraryName, CallingConvention = CallingConvention.Cdecl)]
+    internal static extern IntPtr hackrf_device_list();
+
+    [DllImport(LibraryName, CallingConvention = CallingConvention.Cdecl)]
+    internal static extern void hackrf_device_list_free(IntPtr list);
 }
