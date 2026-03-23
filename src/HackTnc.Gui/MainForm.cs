@@ -41,6 +41,7 @@ public sealed partial class MainForm : Form
     private void PopulateModes()
     {
         cmbMode.Items.Add(new ModeItem("AFSK 1200", TncMode.Afsk1200));
+        cmbMode.Items.Add(new ModeItem("AFSK 300", TncMode.Afsk300));
         cmbMode.SelectedIndex = 0;
     }
 

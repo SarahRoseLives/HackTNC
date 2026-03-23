@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace ax25
 {
-    public class AFSK1200Modulator
+    public class AFSK1200Modulator : IModulator
     {
         public bool ConsoleOut = false;
 

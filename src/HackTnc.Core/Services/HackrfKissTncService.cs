@@ -18,8 +18,8 @@ public sealed class HackrfKissTncService : IAsyncDisposable
     private readonly KissTcpServer _kissServer;
     private readonly FmAudioDecoder _audioDecoder;
     private readonly FmIqEncoder _iqEncoder;
-    private readonly ax25.AFSK1200Modulator _modulator;
-    private readonly ax25.AFSK1200Demodulator _demodulator;
+    private readonly ax25.IModulator _modulator;
+    private readonly ax25.IDemodulator _demodulator;
     private CancellationTokenSource? _lifetimeCts;
     private Task? _rxTask;
     private Task? _txTask;
@@ -41,16 +41,9 @@ public sealed class HackrfKissTncService : IAsyncDisposable
                 ? options.RxAudioGain
                 : options.SampleRateHz / (2.0 * Math.PI * options.FmDeviationHz));
         _iqEncoder = new FmIqEncoder(options.SampleRateHz, options.AudioSampleRate, options.FmDeviationHz, options.TxAudioGain);
-        _modulator = new ax25.AFSK1200Modulator(options.AudioSampleRate)
-        {
-            txDelayMs = options.TxDelayMs,
-            txTailMs = options.TxTailMs
-        };
-        _demodulator = new ax25.AFSK1200Demodulator(
-            options.AudioSampleRate,
-            ResolveFilterLength(options.AudioSampleRate),
-            0,
-            new ReceivedPacketHandler(this));
+
+        var handler = new ReceivedPacketHandler(this);
+        (_modulator, _demodulator) = CreateModem(options, handler);
     }
 
     public event Action<string>? ClientConnected;
@@ -219,6 +212,39 @@ public sealed class HackrfKissTncService : IAsyncDisposable
         _log($"RX {formatted}");
         PacketReceived?.Invoke(formatted);
         await _kissServer.BroadcastFrameAsync(bytes, _lifetimeCts?.Token ?? CancellationToken.None).ConfigureAwait(false);
+    }
+
+    private static (ax25.IModulator, ax25.IDemodulator) CreateModem(TncOptions options, ax25.PacketHandler handler)
+    {
+        ax25.IModulator mod;
+        ax25.IDemodulator demod;
+
+        switch (options.Mode)
+        {
+            case TncMode.Afsk300:
+                mod = new ax25.AfskModulator(options.AudioSampleRate, 300f, 1600f, 1800f)
+                {
+                    txDelayMs = options.TxDelayMs,
+                    txTailMs  = options.TxTailMs
+                };
+                demod = new ax25.AfskDemodulator(options.AudioSampleRate, 300f, 1600f, 1800f, handler);
+                break;
+
+            default: // Afsk1200
+                mod = new ax25.AFSK1200Modulator(options.AudioSampleRate)
+                {
+                    txDelayMs = options.TxDelayMs,
+                    txTailMs  = options.TxTailMs
+                };
+                demod = new ax25.AFSK1200Demodulator(
+                    options.AudioSampleRate,
+                    ResolveFilterLength(options.AudioSampleRate),
+                    0,
+                    handler);
+                break;
+        }
+
+        return (mod, demod);
     }
 
     private static int ResolveFilterLength(int audioSampleRate)

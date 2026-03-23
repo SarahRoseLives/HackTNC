@@ -2,7 +2,7 @@ using System;
 
 namespace ax25
 {
-    public class AFSK1200Demodulator
+    public class AFSK1200Demodulator : IDemodulator
     {
         public bool ConsoleOut = false;
 
